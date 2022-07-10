@@ -48,7 +48,7 @@ const BlogService = {
         params: { id },
       } = req;
       const filter = { _id: id };
-      if (user?.role === "user");
+      if (user.role === "user")
       {
         filter.user = user._id;
       }
@@ -72,7 +72,7 @@ const BlogService = {
         params: { id },
       } = req;
       const filter = { _id: id };
-      if (user?.role === "user");
+      if (user?.role === "user")
       {
         filter.user = user._id;
       }
@@ -97,7 +97,7 @@ const BlogService = {
         body,
       } = req;
       const filter = { _id: id };
-      if (user?.role === "user");
+      if (user?.role === "user")
       {
         filter.user = user._id;
       }
