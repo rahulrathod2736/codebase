@@ -1,10 +1,31 @@
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, message } from "antd";
 import { useNavigate } from "react-router-dom";
+import { axiosInstance } from "../axios";
+import { apiList } from "../axios/apis";
 
 export const SignIn = () => {
   const navigate = useNavigate();
-  const handleSignIn = (data) => {
-    navigate("/dashboard");
+  const handleSignIn = async (data) => {
+    try {
+      const resp = await axiosInstance.post(apiList.signIn, data);
+      if (resp.data.success) {
+        message.success(resp.data.message);
+        const {token, role} = resp.data.data;
+        localStorage.setItem("accessToken", token);
+        localStorage.setItem("role", role);
+        setTimeout(() => {
+          navigate("/dashboard", {replace: true});
+        }, 1000);
+      } else {
+        message.error(
+          resp.data.message || "Something went Wrong, Please Try again"
+        );
+      }
+    } catch (err) {
+      message.error(
+        err.response.data.message || "Something went Wrong, Please Try again"
+      );
+    }
   };
 
   const navigateToSignup = () => {

@@ -1,15 +1,28 @@
-import { Button, DatePicker, Form, Input, Select } from "antd";
+import { Button, DatePicker, Form, Input, message, Select } from "antd";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
+import { axiosInstance } from "../axios";
+import { apiList } from "../axios/apis";
 
 const { Option } = Select;
 
 export const SignUp = () => {
   const navigate = useNavigate();
-  const handleSignIn = (data) => {
-    console.log(data);
+  const handleSignIn = async (data) => {
     const values = {...data, dob: moment(data.dob).format()}
-    console.log(values);
+    try {
+      const resp = await axiosInstance.post(apiList.register, values);
+      if(resp.data.success) {
+        message.success(resp.data.message);
+        setTimeout(() => {navigate("/signin");}, 1000)
+      } else {
+        message.error(
+          resp.data.message || "Something went Wrong, Please Try again"
+        );
+      }
+    } catch (err) {
+      message.error(err.response.data.message || "Something went Wrong, Please Try again");
+    }
   };
 
   const navigateToSignin = () => {

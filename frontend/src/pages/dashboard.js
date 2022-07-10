@@ -1,8 +1,13 @@
-import { Divider } from "antd";
+import { Button, Divider, message } from "antd";
+import moment from "moment";
+import { useCallback, useEffect, useState } from "react";
 
 import { BsVectorPen } from "react-icons/bs";
 import { MdDelete } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
+import { axiosInstance } from "../axios";
+import { apiList } from "../axios/apis";
+import { deleteBlogById } from "../axios/blogApis";
 
 const dummyData = [
   {
@@ -89,48 +94,88 @@ const dummyData = [
 ];
 
 export const Dashboard = () => {
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
-  const handleDeleteBlog = () => {
-    
-  }
+  const [blogs, setBlogs] = useState(null);
+
+  const getBlogs = useCallback(async () => {
+    try {
+      const resp = await axiosInstance.get(apiList.getAllBlogs, {
+        headers: {
+          authorization: `bearer ${localStorage.getItem("accessToken")}`
+        }
+      });
+      if (resp.data.success) {
+        setBlogs(resp.data.data.data);
+      } else {
+        message.error(
+          resp.data.message || "Something went Wrong, Please Try again"
+        );
+      }
+    } catch (err) {
+      message.error(
+        err.response.data.message || "Something went Wrong, Please Try again"
+      );
+    }
+  }, [setBlogs]);
+
+  useEffect(() => {
+    getBlogs();
+  }, [getBlogs]);
+
+  const handleDeleteBlog = async (id) => {
+    await deleteBlogById(id, () => {
+      getBlogs();
+    });
+  };
 
   const handleEditBlog = (id) => {
     navigate(`/blog/edit/${id}`);
+  };
+
+  const createNewBlog = () => {
+    navigate(`/blog/create`);
   }
   return (
     <>
       <div>
-        <div className="p-4">
+        <div className="p-4 flex justify-between">
           <span className="text-lg">Dashboard</span>
+          {localStorage.getItem("role") === "user" && <Button type="primary" onClick={createNewBlog}>
+            Create New Blog
+          </Button>}
         </div>
         <div className="grid grid-cols-3 gap-4 p-4">
-          {dummyData.map((blog) => {
-            return (
-              <div className="bg-white rounded-2xl p-6 drop-shadow-2xl flex flex-col ">
-                <div>{blog.title}</div>
-                <div className="truncate my-2">{blog.description}</div>
-                <Divider dashed />
-                <div className="flex justify-between">
-                  <div>24th July, 2022</div>
-                  <div>
-                    <BsVectorPen
-                      className="text-slate-400 inline-block mx-2 text-lg cursor-pointer"
-                      onClick={() => {
-                        handleEditBlog(blog.id);
-                      }}
-                    />
-                    <MdDelete
-                      className="text-slate-400 inline-block mx-2 text-lg cursor-pointer"
-                      onClick={() => {
-                        handleDeleteBlog(blog.id);
-                      }}
-                    />
+          {blogs &&
+            blogs.map((blog) => {
+              return (
+                <div
+                  className="bg-white rounded-2xl p-6 drop-shadow-2xl flex flex-col"
+                  key={blog._id}
+                >
+                  <div>{blog.title}</div>
+                  <div className="truncate my-2 text-slate-400">{blog.description}</div>
+                  <Divider dashed />
+                  <div className="flex justify-between">
+                    <div>{moment(blog.createdAt).format("DD/MM/YYYY")}</div>
+                    <div>
+                      <BsVectorPen
+                        className="text-slate-400 inline-block mx-2 text-lg cursor-pointer"
+                        onClick={() => {
+                          handleEditBlog(blog._id);
+                        }}
+                      />
+                      <MdDelete
+                        className="text-slate-400 inline-block mx-2 text-lg cursor-pointer"
+                        onClick={() => {
+                          handleDeleteBlog(blog._id);
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </div>
       </div>
     </>
