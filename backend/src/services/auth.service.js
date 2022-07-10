@@ -34,34 +34,38 @@ const AuthService = {
   SignInUser: async (req) => {
     const { body } = req;
     const user = await User.findOne({ email: body.email });
-
-    // TODO: The code is correct but i'm not able to find why it's not works that's why i commented code
-
-    // const isMatch = bcrypt.compareSync(user.password, body.password);
-    // // console.log(isMatch, body.password, user.password);
-    // if (!isMatch) {
-    //   errorObj.message = "Password is Incorrect";
-    //   errorObj.statusCode = 400;
-    //   return errorObj;
-    // }
-    const token = await jwt.sign(
-      {
-        _id: user._id,
-        email: user.email,
-        role: user.role,
-      },
-      Config.secretKey,
-      { expiresIn: "2h" }
-    );
-    return {
-      statusCode: 200,
-      message: "SignIn Successfully",
-      status: true,
-      data: {
-        token,
-      },
-    };
-  },
+    if (user._id) {
+      const isMatch = await bcrypt.compare(body.password, user.password);
+      if (!isMatch) {
+        errorObj.message = "Password is Incorrect";
+        errorObj.statusCode = 400;
+        return errorObj;
+      }
+      const token = await jwt.sign(
+        {
+          _id: user._id,
+          email: user.email,
+          role: user.role,
+        },
+        Config.secretKey,
+        { expiresIn: "2h" }
+      );
+      return {
+        statusCode: 200,
+        message: "SignIn Successfully",
+        success: true,
+        data: {
+          token,
+          role: user.role
+        },
+      };
+    } else {
+      errorObj.message = "Invalid Email or Password";
+      errorObj.statusCode = 400;
+      return errorObj;
+    }
+  }
+    
 };
 
 module.exports = { AuthService };

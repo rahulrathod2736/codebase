@@ -33,8 +33,7 @@ const newSchema = new Schema(
     },
     password: {
       type: String,
-      required: true,
-      lowercase: true,
+      required: true
     },
     role: {
       type: String,

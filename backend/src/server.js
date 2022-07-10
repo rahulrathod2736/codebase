@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const authRoutes = require("./apis/auth.api");
 const blogRoutes = require("./apis/blog.api");
 const categoryRoutes = require("./apis/category.api");
+const cors = require("cors");
 const { Config } = require("./config");
 
 
@@ -16,6 +17,7 @@ const handleServer = (app) => {
     if(err) {
       console.log("Something Went Wrong, Please Restart Server");
     }
+    app.use(cors());
     app.use(bodyParser.json());
     app.use("/api/v1", authRoutes);
     app.use("/api/v1", blogRoutes);
