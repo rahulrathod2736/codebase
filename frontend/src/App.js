@@ -13,9 +13,10 @@ function App() {
   }
   return (
     <Routes>
-      <Route exact path="/signin" element={<SignIn />}/>
-      <Route exact path="/signup" element={<SignUp />}/>
-      <Route path="/*" element={<RenderNode></RenderNode>}/>
+      <Route exact path="/" element={<Navigate to="/signin" replace />} />
+      <Route exact path="/signin" element={<SignIn />} />
+      <Route exact path="/signup" element={<SignUp />} />
+      <Route path="/*" element={<RenderNode></RenderNode>} />
     </Routes>
   );
 }
